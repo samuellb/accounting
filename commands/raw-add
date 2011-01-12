@@ -1,9 +1,19 @@
 #!/bin/sh -e
 
+if [ "$#" = 0 ] || [ "x$1" = "x--help" ]; then
+    echo "usage: $0 [hash of record that this record corrects]"
+    exit 2
+fi
+
+TIMESTAMP="`date +%s`"
+
+NONE=-
+CORRECTED="${2:-$NONE}"
+
 read DATA
 
 {
-    printf "%s" "$DATA; " &&
+    printf "%s" "$DATA; $TIMESTAMP; $CORRECTED; " &&
     "$BASEDIR"/strip-spaces "$1" | sha256sum | tr -cd '0123456789abcdef' &&
     echo
 } >> "$1"
