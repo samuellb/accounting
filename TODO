@@ -1,0 +1,31 @@
+
+Commands that might be useful (just suggestions, feel free to add/remove/change!):
+
+    add-account [-c hash-of-borken-record] name of account
+        
+        adds a new account. -c can be used to correct spelling if you have
+        hash of an old account record.
+    
+    add-trans   [-c hash-of-borken-record] [-m text] account1 D200 account2 C150 account3 C50...
+
+        adds a new transaction. -m sets the message, and if it's left out
+        your editor will be started like GIT does. After that the accounts
+        and amounts follow. In this example account1 is debited with 200
+        more "money units" (you can use anything, but probably cents is a
+        good idea because only integers are allowed).
+    
+    balance [-d date] [regex]
+    
+        calculates the balance for accounts that match regex. If date is
+        given then the balance at that date is shown instead of the current
+        balance.
+    
+    list-accounts  [regex]
+    
+        list accounts that match regex, or all if no regex is given.
+    
+    list-transactions [-m regex] [-a regex]
+    
+        list accounts where the name or account matches regex.
+    
+
