@@ -1,0 +1,78 @@
+How it works
+------------
+
+The system works with a large log file that is hard to tamper with
+because:
+
+  1) each record has a hash of all previous records
+  2) each record has a digital signature of the hash (maybe not...)
+  3) only append operations are allowed by the software
+     (unless it's modified by the user)
+
+Log format in EBNF
+------------------
+
+Skip down to the next section if you prefer examples!
+
+(* The log consists of "records" that contain either a new transaction 
+   or a new account definition. *)
+log := { record, "\n" } ;
+
+space character := " " | "\n" ;
+sep := ";", { space character } ;
+
+(* Data types *)
+nonzero digit := ? 1-9 ?
+digit := ? 1..9 ? ;
+positive integer := nonzero digit, { digit } ;
+integer := [ "-" ], positive integer;
+timestamp := ? UNIX timestamp ? ;
+date := ? ISO date, such as 2010-12-31 ? ;
+
+record := record data, sep, record timestamp, sep, correction back pointer, sep, hash ;
+record data := named account | transaction ;
+record timestamp := timestamp ;
+correction back pointer := "-" | hash ;
+hash := ? SHA-256 of all data before the hash, with spaces in separators removed ? ;
+
+named account := "ACCOUNT", sep,
+                 (asset | debt | revenue | expense), sep,
+                 account name ;
+asset := "ASSET" ;
+debt := "DEBT" ;
+revenue := "REVENUE" ;
+expense := "EXPENSE" ;
+account name := string ;
+
+transaction := "TRANSACTION", sep,
+               transaction number, sep,
+               transaction date, sep,
+               transaction text, sep,
+               { balance change } ;
+transaction number := integer ;
+transaction date := date ;
+transaction text := string ;
+balance change := { account name, sep, amount, sep };
+amount := ( debit | credit ), positive integer;
+debet := "D" ;
+credet := "C" ;
+
+
+Examples
+--------
+
+Some hashes are left out because I was lazy.
+
+ACCOUNT; ASSET; Kassa;                       1294864885; -; 408ecb0e591b90a539b633ce2358dc449b3f694c2baf866b65386a0b552c9d89
+ACCOUNT; ASSET; Bank;                        1294864885; -; 76fd7b1725e569f309ad69c6a3d0ff7edab17b22b68f9080da5d4dfa14adbb63
+ACCOUNT; DEBT;  Eget kapitlal                1294864885; -; b584dc53a86f8a4684abb4c1175d22fa635ad9159b5ccd34875c2294c3bfe507
+TRANSACTION;   1;  2011-01-12;  Egen insättning;  Bank; D5000;  Eget kapitlal; K5000;           1294865621; -; hash....
+ACCOUNT; DEBT;  Eget kapital;                1294865738; b584dc53a86f8a4684abb4c1175d22fa635ad9159b5ccd34875c2294c3bfe507; hash...
+
+
+Here we create three accounts first. Note that the third one is 
+misspelled. Then we do a transaction from "Eget kapital" to "Bank".
+D stands for Debit and C for Credit. Finally we correct the third
+record with the fifth record (it kind of overwrites it, but the old one 
+is still kept). This is accomplished with the "Correction" field, which 
+is left out ("-") in all other records.
