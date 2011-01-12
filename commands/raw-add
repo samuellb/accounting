@@ -2,7 +2,10 @@
 
 read DATA
 
-printf "%s" "$DATA; " >> "$1"
-"$BASEDIR"/strip-spaces "$1" | sha256sum | tr -cd '0123456789abcdef' >> "$1"
+{
+    printf "%s" "$DATA; " &&
+    "$BASEDIR"/strip-spaces "$1" | sha256sum | tr -cd '0123456789abcdef' &&
+    echo
+} >> "$1"
 
 
