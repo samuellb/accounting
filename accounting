@@ -1,0 +1,10 @@
+#!/bin/sh
+
+COMMAND="$1"
+shift
+
+# TODO should be /usr/lib/something when this is installed in system-wide
+export BASEDIR="`dirname "$0"`/commands"
+
+exec "$BASEDIR/$COMMAND" $*
+
